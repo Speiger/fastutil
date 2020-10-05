@@ -92,6 +92,7 @@
     {@link it.unimi.dsi.fastutil.BigArrays} and {@link it.unimi.dsi.fastutil.ints.IntBigArrays}
     to get an idea of the generic and type-specific methods available.
 
+	<p>Limited support is available for big atomic arrays of integers and longs.
 
     <h3>Fast and practical I/O</h3>
 
@@ -456,7 +457,7 @@
     <li>The standard entry-set iterators for hash-based maps use an entry object
     that refers to the data contained in the hash table. If you retrieve an
     entry and delete it, the entry object will become invalid and will throw
-    an {@link java.util.ArrayIndexOutOfBounds} exception. This does not
+    an {@link java.util.ArrayIndexOutOfBoundsException} exception. This does not
     apply to fast iterators (see above).</li>
 
     <li>A name clash between the list and collection interfaces

@@ -346,6 +346,7 @@ fi)\
 "#define LIST ${TYPE_CAP[$k]}List\n"\
 "#define BIG_LIST ${TYPE_CAP[$k]}BigList\n"\
 "#define STACK ${TYPE_STD[$k]}Stack\n"\
+"#define ATOMIC_ARRAY Atomic${CLASS[$k]}Array\n"\
 "#define PRIORITY_QUEUE ${TYPE_STD[$k]}PriorityQueue\n"\
 "#define INDIRECT_PRIORITY_QUEUE ${TYPE_STD[$k]}IndirectPriorityQueue\n"\
 "#define INDIRECT_DOUBLE_PRIORITY_QUEUE ${TYPE_STD[$k]}IndirectDoublePriorityQueue\n"\
@@ -454,6 +455,7 @@ fi)\
 "#define ARRAY_LIST ${TYPE_CAP[$k]}ArrayList\n"\
 "#define BIG_ARRAY_BIG_LIST ${TYPE_CAP[$k]}BigArrayBigList\n"\
 "#define ARRAY_FRONT_CODED_LIST ${TYPE_CAP[$k]}ArrayFrontCodedList\n"\
+"#define ARRAY_FRONT_CODED_BIG_LIST ${TYPE_CAP[$k]}ArrayFrontCodedBigList\n"\
 "#define HEAP_PRIORITY_QUEUE ${TYPE_CAP2[$k]}HeapPriorityQueue\n"\
 "#define HEAP_SEMI_INDIRECT_PRIORITY_QUEUE ${TYPE_CAP2[$k]}HeapSemiIndirectPriorityQueue\n"\
 "#define HEAP_INDIRECT_PRIORITY_QUEUE ${TYPE_CAP2[$k]}HeapIndirectPriorityQueue\n"\
