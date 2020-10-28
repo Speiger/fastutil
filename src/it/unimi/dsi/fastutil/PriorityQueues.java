@@ -17,7 +17,6 @@ package it.unimi.dsi.fastutil;
  */
 
 import java.io.Serializable;
-
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 
@@ -64,10 +63,25 @@ public class PriorityQueues {
 		public Object last() { throw new NoSuchElementException(); }
 
 		@Override
+		public boolean remove(Object value) { return false; }
+
+		@Override
 		public void changed() { throw new NoSuchElementException(); }
 
 		@Override
 		public Comparator<?> comparator() { return null; }
+
+		@Override
+		public void trim() { throw new NoSuchElementException(); }
+
+		@Override
+		public Object peek(int index) { throw new NoSuchElementException(); }
+
+		@Override
+		public Object[] toArray() { return new Object[0]; }
+
+		@Override
+		public Object[] toArray(Object[] input) { return new Object[0]; }
 
 		@Override
 		public Object clone() { return EMPTY_QUEUE; }
@@ -127,6 +141,9 @@ public class PriorityQueues {
 		public K last() { synchronized(sync) { return q.last(); } }
 
 		@Override
+		public K peek(int index) { synchronized(sync) { return q.peek(index); } }
+
+		@Override
 		public boolean isEmpty() { synchronized(sync) { return q.isEmpty(); } }
 
 		@Override
@@ -139,7 +156,19 @@ public class PriorityQueues {
 		public void changed() { synchronized(sync) { q.changed(); } }
 
 		@Override
+		public void trim() { synchronized(sync) { q.trim(); } }
+
+		@Override
 		public Comparator <? super K> comparator() { synchronized(sync) { return q.comparator(); } }
+
+		@Override
+		public boolean remove(K value) { synchronized(sync) { return q.remove(value); } }
+
+		@Override
+		public K[] toArray() { synchronized(sync) { return q.toArray(); } }
+
+		@Override
+		public K[] toArray(K[] input) { synchronized(sync) { return q.toArray(input); } }
 
 		@Override
 		public String toString() { synchronized(sync) { return q.toString(); } }
@@ -154,7 +183,6 @@ public class PriorityQueues {
 			synchronized(sync) { s.defaultWriteObject(); }
 		}
 	}
-
 
 	/** Returns a synchronized priority queue backed by the specified priority queue.
 	 *
