@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.RandomAccess;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 #if KEYS_REFERENCE
 import java.util.Comparator;
 #endif
@@ -591,6 +592,9 @@ public class ARRAY_LIST KEY_GENERIC extends ABSTRACT_LIST KEY_GENERIC implements
 
 	@Override
 	public boolean removeAll(final Collection<?> c) {
+		if(c instanceof COLLECTION) {
+			return removeAll((COLLECTION)c);
+		}
 		Objects.requireNonNull(c);
 		final KEY_TYPE[] a = this.a;
 		int j = 0;
@@ -606,6 +610,9 @@ public class ARRAY_LIST KEY_GENERIC extends ABSTRACT_LIST KEY_GENERIC implements
 
 	@Override
 	public boolean retainAll(final Collection<?> c) {
+		if(c instanceof COLLECTION) {
+			return retainAll((COLLECTION)c);
+		}
 		Objects.requireNonNull(c);
 		final KEY_TYPE[] a = this.a;
 		int j = 0;
@@ -655,7 +662,7 @@ public class ARRAY_LIST KEY_GENERIC extends ABSTRACT_LIST KEY_GENERIC implements
 
 	@Override
 	public boolean removeIf(final java.util.function.Predicate<? super KEY_GENERIC_CLASS> filter) {
-		return removeIf((JDK_PRIMITIVE_PREDICATE) key -> filter.test(KEY2OBJ(KEY_NARROWING(key))));}
+		return removeIf((JDK_PRIMITIVE_PREDICATE) key -> filter.test(KEY2OBJ(KEY_NARROWING(key))));
 	}
 #endif
 #endif
