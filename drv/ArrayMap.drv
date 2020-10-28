@@ -327,6 +327,32 @@ public class ARRAY_MAP KEY_VALUE_GENERIC extends ABSTRACT_MAP KEY_VALUE_GENERIC 
 		return oldValue;
 	}
 
+#if VALUES_PRIMITIVE && !VALUE_CLASS_Boolean
+	@Override
+	public VALUE_GENERIC_TYPE addTo(final KEY_GENERIC_TYPE k, final VALUE_GENERIC_TYPE incr) {
+		final int oldKey = findKey(k);
+		if (oldKey != -1) {
+			final VALUE_GENERIC_TYPE oldValue = VALUE_GENERIC_CAST value[oldKey];
+			value[oldKey] += incr;
+			return oldValue;
+		}
+		if (size == key.length) {
+			final KEY_TYPE[] newKey = new KEY_TYPE[size == 0 ? 2 : size * 2];
+			final VALUE_TYPE[] newValue = new VALUE_TYPE[size == 0 ? 2 : size * 2];
+			for(int i = size; i-- != 0;) {
+				newKey[i] = key[i];
+				newValue[i] = value[i];
+			}
+			key = newKey;
+			value = newValue;
+		}
+		key[size] = k;
+		value[size] = incr;
+		size++;
+		return defRetValue;
+	}
+
+#endif
 	@Override
 	public SET KEY_GENERIC keySet() {
 		return new ABSTRACT_SET KEY_GENERIC() {

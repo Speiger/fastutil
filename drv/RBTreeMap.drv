@@ -271,6 +271,7 @@ public class RB_TREE_MAP KEY_VALUE_GENERIC extends ABSTRACT_SORTED_MAP KEY_VALUE
 	 * @param incr the increment.
 	 * @return the old value, or the {@linkplain #defaultReturnValue() default return value} if no value was present for the given key.
 	 */
+	@Override
 	public VALUE_GENERIC_TYPE addTo(final KEY_GENERIC_TYPE k, final VALUE_GENERIC_TYPE incr) {
 		Entry KEY_VALUE_GENERIC e = add(k);
 		final VALUE_GENERIC_TYPE oldValue = e.value;
@@ -1497,6 +1498,16 @@ public class RB_TREE_MAP KEY_VALUE_GENERIC extends ABSTRACT_SORTED_MAP KEY_VALUE
 			return modified ? this.defRetValue : oldValue;
 		}
 
+#if VALUES_PRIMITIVE && !VALUE_CLASS_Boolean
+		@Override
+		public VALUE_GENERIC_TYPE addTo(final KEY_GENERIC_TYPE k, final VALUE_GENERIC_TYPE incr) {
+			modified = false;
+			if (! in(k)) throw new IllegalArgumentException("Key (" + k + ") out of range [" + (bottom ? "-" : String.valueOf(from)) + ", " + (top ? "-" : String.valueOf(to)) + ")");
+			final VALUE_GENERIC_TYPE oldValue = RB_TREE_MAP.this.addTo(k, incr);
+			return modified ? this.defRetValue : oldValue;
+		}
+
+#endif
 		@Override
 		SUPPRESS_WARNINGS_KEY_UNCHECKED
 		public VALUE_GENERIC_TYPE REMOVE_VALUE(final KEY_TYPE k) {

@@ -52,6 +52,11 @@ public interface Stack<K> {
 	 */
 
 	boolean isEmpty();
+	
+	/**
+	 * Clears the contents of the stack
+	 */
+	void clear();
 
 	/** Peeks at the top of the stack (optional operation).
 	 *
