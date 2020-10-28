@@ -102,6 +102,11 @@ public final class MAPS {
 		public boolean containsValue(final Object ov) { return false; }
 #endif
 
+#if VALUES_PRIMITIVE && !VALUE_CLASS_Boolean
+		@Override
+		public VALUE_GENERIC_TYPE addTo(final KEY_GENERIC_TYPE k, final VALUE_GENERIC_TYPE incr) { return VALUE_NULL; }
+#endif
+
 		@Override
 		public void putAll(final Map<? extends KEY_GENERIC_CLASS, ? extends VALUE_GENERIC_CLASS> m) { throw new UnsupportedOperationException(); }
 
@@ -174,17 +179,23 @@ public final class MAPS {
 
 		@Override
 		public boolean containsValue(final VALUE_TYPE v) { return VALUE_EQUALS(value, v); }
+
 #if VALUES_PRIMITIVE
 		/** {@inheritDoc}
 		 * @deprecated Please use the corresponding type-specific method instead. */
 		@Deprecated
 		@Override
 		public boolean containsValue(final Object ov) { return VALUE_EQUALS(VALUE_OBJ2TYPE(ov), value); }
-#endif
 
+#endif
 		@Override
 		public void putAll(final Map<? extends KEY_GENERIC_CLASS, ? extends VALUE_GENERIC_CLASS> m) { throw new UnsupportedOperationException(); }
 
+#if VALUES_PRIMITIVE && !VALUE_CLASS_Boolean
+		@Override
+		public VALUE_GENERIC_TYPE addTo(final KEY_GENERIC_TYPE k, final VALUE_GENERIC_TYPE incr) { throw new UnsupportedOperationException(); }
+
+#endif
 		@Override
 		public ObjectSet<MAP.Entry KEY_VALUE_GENERIC> ENTRYSET() { if (entries == null) entries = ObjectSets.singleton(new ABSTRACT_MAP.BasicEntry KEY_VALUE_GENERIC_DIAMOND(key, value)); return entries; }
 
@@ -288,6 +299,11 @@ public final class MAPS {
 		@Override
 		public void putAll(final Map<? extends KEY_GENERIC_CLASS, ? extends VALUE_GENERIC_CLASS> m) { synchronized(sync) { map.putAll(m); } }
 
+#if VALUES_PRIMITIVE && !VALUE_CLASS_Boolean
+		@Override
+		public VALUE_GENERIC_TYPE addTo(final KEY_GENERIC_TYPE k, final VALUE_GENERIC_TYPE incr) { synchronized(sync) { return map.addTo(k, incr); } }
+
+#endif
 		@Override
 		public ObjectSet<MAP.Entry KEY_VALUE_GENERIC> ENTRYSET() { synchronized(sync) { if (entries == null) entries = ObjectSets.synchronize(map.ENTRYSET(), sync); return entries; } }
 
@@ -495,6 +511,11 @@ public final class MAPS {
 		@Override
 		public void putAll(final Map<? extends KEY_GENERIC_CLASS, ? extends VALUE_GENERIC_CLASS> m) { throw new UnsupportedOperationException(); }
 
+#if VALUES_PRIMITIVE && !VALUE_CLASS_Boolean
+		@Override
+		public VALUE_GENERIC_TYPE addTo(final KEY_GENERIC_TYPE k, final VALUE_GENERIC_TYPE incr) { throw new UnsupportedOperationException(); }
+
+#endif
 		@Override
 		public ObjectSet<MAP.Entry KEY_VALUE_GENERIC> ENTRYSET() { if (entries == null) entries = ObjectSets.unmodifiable(map.ENTRYSET()); return entries; }
 
