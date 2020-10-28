@@ -1,5 +1,7 @@
 package it.unimi.dsi.fastutil.ints;
 
+import static org.junit.Assert.assertArrayEquals;
+
 /*
  * Copyright (C) 2017-2020 Sebastiano Vigna
  *
@@ -61,6 +63,115 @@ public class IntArrayFIFOQueueTest {
 			assertEquals(i, q.dequeueInt());
 			if (i != 99) assertEquals(99, q.lastInt());
 		}
+	}
+
+	@Test
+	public void testPeek()
+	{
+		IntArrayFIFOQueue q = new IntArrayFIFOQueue();
+		for(int i = 0; i < 100; i++) {
+			q.enqueue(i);
+			assertEquals(i, q.lastInt());
+		}
+		for(int i = 0;i<100;i++)
+		{
+			assertEquals(i, q.peekInt(i));
+		}
+	}
+
+	@Test
+	public void removeTest() {
+		IntArrayFIFOQueue q = new IntArrayFIFOQueue();
+		for(int i = 0; i < 100; i++) {
+			q.enqueue(i);
+			assertEquals(i, q.lastInt());
+		}
+		q.removeInt(40);
+		assertEquals(q.size(), 99);
+		for(int i = 0;i<99;i++) {
+			if(i >= 40) assertEquals(i + 1, q.dequeueInt());
+			else assertEquals(i, q.dequeueInt());
+		}
+		q = new IntArrayFIFOQueue();
+		for(int i = 0; i < 100; i++) {
+			q.enqueue(i);
+			assertEquals(i, q.lastInt());
+		}
+		q.removeInt(60);
+		assertEquals(q.size(), 99);
+		for(int i = 0;i<99;i++) {
+			if(i >= 60) assertEquals(i + 1, q.dequeueInt());
+			else assertEquals(i, q.dequeueInt());
+		}
+		int[][] expectedResults = new int[][]{
+			{50, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{50, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43, 44, 45, 46, 47, 48, 49, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+		IntList index = IntArrayList.wrap(new int[]{0});
+		q = new IntArrayFIFOQueue(100) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public boolean removeInt(int x) {
+				if(super.removeInt(x))
+				{
+					assertArrayEquals(expectedResults[index.getInt(0)], array);
+					return true;
+				}
+				return false;
+			}
+		};
+		for(int i = 0; i < 75; i++) {
+			q.enqueue(i);
+		}
+		for(int i = 0; i < 50; i++) {
+			q.dequeueInt();
+		}
+		for(int i = 0; i < 50; i++) {
+			q.enqueue(i);
+		}
+		q.removeInt(60);
+		index.set(0, 1);
+		q.removeInt(40);
+		assertEquals(q.size(), 73);
+		for(int i = 0;i<73;i++) {
+			if(i >= 24) assertEquals(i - (i < 64 ? 24 : 23), q.dequeueInt());
+			else assertEquals(i + (i >= 10 ? 51 : 50), q.dequeueInt());
+		}
+		
+	}
+
+	@Test
+	public void testArray()
+	{
+		IntArrayFIFOQueue q = new IntArrayFIFOQueue();
+		Integer[] ref = new Integer[100];
+		Integer[] shiftArray = new Integer[100];
+		int[] primRef = new int[100];
+		int[] shiftPrimArray = new int[100];
+		for(int i = 0; i < 100; i++) {
+			q.enqueue(i);
+			assertEquals(i, q.lastInt());
+			ref[i] = Integer.valueOf(i);
+			primRef[i] = i;
+			shiftPrimArray[(i+80) % 100] = i;
+			shiftArray[(i+80) % 100] = Integer.valueOf(i);
+		}
+		assertArrayEquals(q.toArray(), ref);
+		assertArrayEquals(q.toArray(new Integer[100]), ref);
+		assertArrayEquals(q.toArray(null), ref);
+		assertArrayEquals(q.toIntArray(), primRef);
+		assertArrayEquals(q.toIntArray(new int[100]), primRef);
+		assertArrayEquals(q.toIntArray(null), primRef);
+		IntArrayFIFOQueue other = new IntArrayFIFOQueue(q.toIntArray());
+		for(int i = 0;i<100;i++) {
+			assertEquals(other.peekInt(i), primRef[i]);
+		}
+		for(int i = 0;i<20;i++) {
+			other.dequeueInt();
+			other.enqueue(i);
+		}
+		assertArrayEquals(other.toIntArray(), shiftPrimArray);
+		assertArrayEquals(other.toIntArray(new int[100]), shiftPrimArray);
+		assertArrayEquals(other.toArray(), shiftArray);
 	}
 
 	@Test
@@ -158,7 +269,7 @@ public class IntArrayFIFOQueueTest {
 		assertEquals(1, q.dequeueInt());
 		assertEquals(0, q.dequeueInt());
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testImmediateReduce() {
