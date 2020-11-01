@@ -45,7 +45,6 @@ import it.unimi.dsi.fastutil.ints.IntArrays;
 #if ! KEY_CLASS_Boolean
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 #endif
@@ -65,7 +64,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * <p>There are several sorting methods available. The main theme is that of letting you choose
  * the sorting algorithm you prefer (i.e., trading stability of mergesort for no memory allocation in quicksort).
- * Several algorithms provide a parallel version, that will use the {@linkplain Runtime#availableProcessors() number of cores available}.
+ * Some algorithms provide a parallel version that will use the {@linkplain ForkJoinPool#commonPool() common pool}.
  * Some algorithms also provide an explicit <em>indirect</em> sorting facility, which makes it possible
  * to sort an array using the values in another array as comparator.
  *
@@ -114,7 +113,7 @@ import java.util.Comparator;
  *
  * <p>There are several sorting methods available. The main theme is that of letting you choose
  * the sorting algorithm you prefer (i.e., trading stability of mergesort for no memory allocation in quicksort).
- * Several algorithms provide a parallel version, that will use the {@linkplain Runtime#availableProcessors() number of cores available}.
+ * Some algorithms provide a parallel version that will use the {@linkplain ForkJoinPool#commonPool() common pool}.
  *
  * <p>All comparison-based algorithm have an implementation based on a type-specific comparator.
  *
@@ -647,8 +646,7 @@ public final class ARRAYS {
 	 * McIlroy, &ldquo;Engineering a Sort Function&rdquo;, <i>Software: Practice and Experience</i>, 23(11), pages
 	 * 1249&minus;1265, 1993.
 	 *
-	 * <p>This implementation uses a {@link ForkJoinPool} executor service with
-	 * {@link Runtime#availableProcessors()} parallel threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param x the array to be sorted.
 	 * @param from the index of the first element (inclusive) to be sorted.
@@ -656,9 +654,9 @@ public final class ARRAYS {
 	 * @param comp the comparator to determine the sorting order.
 	 */
 	public static KEY_GENERIC void parallelQuickSort(final KEY_GENERIC_TYPE[] x, final int from, final int to, final KEY_COMPARATOR KEY_GENERIC comp) {
-		if (to - from < PARALLEL_QUICKSORT_NO_FORK) quickSort(x, from, to, comp);
+		if (to - from < PARALLEL_QUICKSORT_NO_FORK || ForkJoinPool.getCommonPoolParallelism() == 1) quickSort(x, from, to, comp);
 		else {
-			final ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+			final ForkJoinPool pool = ForkJoinPool.commonPool();
 			pool.invoke(new ForkJoinQuickSortComp KEY_GENERIC_DIAMOND(x, from, to, comp));
 			pool.shutdown();
 		}
@@ -671,8 +669,7 @@ public final class ARRAYS {
 	 * McIlroy, &ldquo;Engineering a Sort Function&rdquo;, <i>Software: Practice and Experience</i>, 23(11), pages
 	 * 1249&minus;1265, 1993.
 	 *
-	 * <p>This implementation uses a {@link ForkJoinPool} executor service with
-	 * {@link Runtime#availableProcessors()} parallel threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param x the array to be sorted.
 	 * @param comp the comparator to determine the sorting order.
@@ -869,17 +866,16 @@ public final class ARRAYS {
 	 * McIlroy, &ldquo;Engineering a Sort Function&rdquo;, <i>Software: Practice and Experience</i>, 23(11), pages
 	 * 1249&minus;1265, 1993.
 	 *
-	 * <p>This implementation uses a {@link ForkJoinPool} executor service with
-	 * {@link Runtime#availableProcessors()} parallel threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param x the array to be sorted.
 	 * @param from the index of the first element (inclusive) to be sorted.
 	 * @param to the index of the last element (exclusive) to be sorted.
 	 */
 	public static KEY_GENERIC void parallelQuickSort(final KEY_GENERIC_TYPE[] x, final int from, final int to) {
-		if (to - from < PARALLEL_QUICKSORT_NO_FORK) quickSort(x, from, to);
+		if (to - from < PARALLEL_QUICKSORT_NO_FORK || ForkJoinPool.getCommonPoolParallelism() == 1) quickSort(x, from, to);
 		else {
-			final ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+			final ForkJoinPool pool = ForkJoinPool.commonPool();
 			pool.invoke(new ForkJoinQuickSort KEY_GENERIC_DIAMOND(x, from, to));
 			pool.shutdown();
 		}
@@ -891,8 +887,7 @@ public final class ARRAYS {
 	 * McIlroy, &ldquo;Engineering a Sort Function&rdquo;, <i>Software: Practice and Experience</i>, 23(11), pages
 	 * 1249&minus;1265, 1993.
 	 *
-	 * <p>This implementation uses a {@link ForkJoinPool} executor service with
-	 * {@link Runtime#availableProcessors()} parallel threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param x the array to be sorted.
 	 *
@@ -1094,8 +1089,7 @@ public final class ARRAYS {
 	 * be exactly the numbers in the interval {@code [0..perm.length)}) will be permuted so that
 	 * {@code x[perm[i]] &le; x[perm[i + 1]]}.
 	 *
-	 * <p>This implementation uses a {@link ForkJoinPool} executor service with
-	 * {@link Runtime#availableProcessors()} parallel threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param perm a permutation array indexing {@code x}.
 	 * @param x the array to be sorted.
@@ -1103,9 +1097,9 @@ public final class ARRAYS {
 	 * @param to the index of the last element (exclusive) to be sorted.
 	 */
 	public static KEY_GENERIC void parallelQuickSortIndirect(final int[] perm, final KEY_GENERIC_TYPE[] x, final int from, final int to) {
-		if (to - from < PARALLEL_QUICKSORT_NO_FORK) quickSortIndirect(perm, x, from, to);
+		if (to - from < PARALLEL_QUICKSORT_NO_FORK || ForkJoinPool.getCommonPoolParallelism() == 1) quickSortIndirect(perm, x, from, to);
 		else {
-			final ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+			final ForkJoinPool pool = ForkJoinPool.commonPool();
 			pool.invoke(new ForkJoinQuickSortIndirect KEY_GENERIC_DIAMOND(perm, x, from, to));
 			pool.shutdown();
 		}
@@ -1121,8 +1115,7 @@ public final class ARRAYS {
 	 * be exactly the numbers in the interval {@code [0..perm.length)}) will be permuted so that
 	 * {@code x[perm[i]] &le; x[perm[i + 1]]}.
 	 *
-	 * <p>This implementation uses a {@link ForkJoinPool} executor service with
-	 * {@link Runtime#availableProcessors()} parallel threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param perm a permutation array indexing {@code x}.
 	 * @param x the array to be sorted.
@@ -1382,8 +1375,7 @@ public final class ARRAYS {
 	 * permuted accordingly. In the end, either {@code x[i] &lt; x[i + 1]} or <code>x[i]
 	 * == x[i + 1]</code> and {@code y[i] &le; y[i + 1]}.
 	 *
-	 * <p>This implementation uses a {@link ForkJoinPool} executor service with
-	 * {@link Runtime#availableProcessors()} parallel threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param x the first array to be sorted.
 	 * @param y the second array to be sorted.
@@ -1391,8 +1383,8 @@ public final class ARRAYS {
 	 * @param to the index of the last element (exclusive) to be sorted.
 	 */
 	public static KEY_GENERIC void parallelQuickSort(final KEY_GENERIC_TYPE[] x, final KEY_GENERIC_TYPE[] y, final int from, final int to) {
-		if (to - from < PARALLEL_QUICKSORT_NO_FORK) quickSort(x, y, from, to);
-		final ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+		if (to - from < PARALLEL_QUICKSORT_NO_FORK || ForkJoinPool.getCommonPoolParallelism() == 1) quickSort(x, y, from, to);
+		final ForkJoinPool pool = ForkJoinPool.commonPool();
 		pool.invoke(new ForkJoinQuickSort2 KEY_GENERIC_DIAMOND(x, y, from, to));
 		pool.shutdown();
 	}
@@ -1409,8 +1401,7 @@ public final class ARRAYS {
 	 * permuted accordingly. In the end, either {@code x[i] &lt; x[i + 1]} or <code>x[i]
 	 * == x[i + 1]</code> and {@code y[i] &le; y[i + 1]}.
 	 *
-	 * <p>This implementation uses a {@link ForkJoinPool} executor service with
-	 * {@link Runtime#availableProcessors()} parallel threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param x the first array to be sorted.
 	 * @param y the second array to be sorted.
@@ -1495,11 +1486,11 @@ public final class ARRAYS {
 	 * @param from the index of the first element (inclusive) to be sorted.
 	 * @param to the index of the last element (exclusive) to be sorted.
 	 * @param supp a support array containing at least {@code to} elements, and whose entries are identical to those
-	 * of {@code a} in the specified range.
+	 * of {@code a} in the specified range. It can be {@code null}, in which case {@code a} will be cloned.
 	 */
 
 	SUPPRESS_WARNINGS_KEY_UNCHECKED
-	public static KEY_GENERIC void mergeSort(final KEY_GENERIC_TYPE a[], final int from, final int to, final KEY_GENERIC_TYPE supp[]) {
+	public static KEY_GENERIC void mergeSort(final KEY_GENERIC_TYPE a[], final int from, final int to, KEY_GENERIC_TYPE supp[]) {
 		int len = to - from;
 
 		// Insertion sort on smallest arrays
@@ -1507,6 +1498,8 @@ public final class ARRAYS {
 			insertionSort(a, from, to);
 			return;
 		}
+
+		if (supp == null) supp = java.util.Arrays.copyOf(a, to);
 
 		// Recursively sort halves of a into supp
 		final int mid = (from + to) >>> 1;
@@ -1537,7 +1530,7 @@ public final class ARRAYS {
 	 * @param to the index of the last element (exclusive) to be sorted.
 	 */
 	public static KEY_GENERIC void mergeSort(final KEY_GENERIC_TYPE a[], final int from, final int to) {
-		mergeSort(a, from, to, a.clone());
+		mergeSort(a, from, to, (KEY_GENERIC_TYPE[])null);
 	}
 
 	/**	Sorts an array according to the natural ascending order using mergesort.
@@ -1562,9 +1555,9 @@ public final class ARRAYS {
 	 * @param to the index of the last element (exclusive) to be sorted.
 	 * @param comp the comparator to determine the sorting order.
 	 * @param supp a support array containing at least {@code to} elements, and whose entries are identical to those
-	 * of {@code a} in the specified range.
+	 * of {@code a} in the specified range. It can be {@code null}, in which case {@code a} will be cloned.
 	 */
-	public static KEY_GENERIC void mergeSort(final KEY_GENERIC_TYPE a[], final int from, final int to, KEY_COMPARATOR KEY_GENERIC comp, final KEY_GENERIC_TYPE supp[]) {
+	public static KEY_GENERIC void mergeSort(final KEY_GENERIC_TYPE a[], final int from, final int to, KEY_COMPARATOR KEY_GENERIC comp, KEY_GENERIC_TYPE supp[]) {
 		int len = to - from;
 
 		// Insertion sort on smallest arrays
@@ -1572,6 +1565,8 @@ public final class ARRAYS {
 			insertionSort(a, from, to, comp);
 			return;
 		}
+
+		if (supp == null) supp = java.util.Arrays.copyOf(a, to);
 
 		// Recursively sort halves of a into supp
 		final int mid = (from + to) >>> 1;
@@ -1604,7 +1599,7 @@ public final class ARRAYS {
 	 * @param comp the comparator to determine the sorting order.
 	 */
 	public static KEY_GENERIC void mergeSort(final KEY_GENERIC_TYPE a[], final int from, final int to, KEY_COMPARATOR KEY_GENERIC comp) {
-		mergeSort(a, from, to, comp, a.clone());
+		mergeSort(a, from, to, comp, (KEY_GENERIC_TYPE[])null);
 	}
 
 	/** Sorts an array according to the order induced by the specified
@@ -1978,14 +1973,14 @@ public final class ARRAYS {
 	 * <p>The sorting algorithm is a tuned radix sort adapted from Peter M. McIlroy, Keith Bostic and M. Douglas
 	 * McIlroy, &ldquo;Engineering radix sort&rdquo;, <i>Computing Systems</i>, 6(1), pages 5&minus;27 (1993).
 	 *
-	 * <p>This implementation uses a pool of {@link Runtime#availableProcessors()} threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param a the array to be sorted.
 	 * @param from the index of the first element (inclusive) to be sorted.
 	 * @param to the index of the last element (exclusive) to be sorted.
 	 */
 	public static void parallelRadixSort(final KEY_TYPE[] a, final int from, final int to) {
-		if (to - from < PARALLEL_RADIXSORT_NO_FORK) {
+		if (to - from < PARALLEL_RADIXSORT_NO_FORK || ForkJoinPool.getCommonPoolParallelism() == 1) {
 			quickSort(a, from, to);
 			return;
 		}
@@ -1993,8 +1988,8 @@ public final class ARRAYS {
 		final LinkedBlockingQueue<Segment> queue = new LinkedBlockingQueue<>();
 		queue.add(new Segment(from, to - from, 0));
 		final AtomicInteger queueSize = new AtomicInteger(1);
-		final int numberOfThreads = Runtime.getRuntime().availableProcessors();
-		final ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads, Executors.defaultThreadFactory());
+		final int numberOfThreads = ForkJoinPool.getCommonPoolParallelism();
+		final ExecutorService executorService = ForkJoinPool.commonPool();
 		final ExecutorCompletionService<Void> executorCompletionService = new ExecutorCompletionService<>(executorService);
 
 		for(int j = numberOfThreads; j-- != 0;) executorCompletionService.submit(() -> {
@@ -2071,7 +2066,7 @@ public final class ARRAYS {
 	 * <p>The sorting algorithm is a tuned radix sort adapted from Peter M. McIlroy, Keith Bostic and M. Douglas
 	 * McIlroy, &ldquo;Engineering radix sort&rdquo;, <i>Computing Systems</i>, 6(1), pages 5&minus;27 (1993).
 	 *
-	 * <p>This implementation uses a pool of {@link Runtime#availableProcessors()} threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param a the array to be sorted.
 	 */
@@ -2215,7 +2210,7 @@ public final class ARRAYS {
 	 * be exactly the numbers in the interval {@code [0..perm.length)}) will be permuted so that
 	 * {@code a[perm[i]] &le; a[perm[i + 1]]}.
 	 *
-	 * <p>This implementation uses a pool of {@link Runtime#availableProcessors()} threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param perm a permutation array indexing {@code a}.
 	 * @param a the array to be sorted.
@@ -2224,7 +2219,7 @@ public final class ARRAYS {
 	 * @param stable whether the sorting algorithm should be stable.
 	 */
 	public static void parallelRadixSortIndirect(final int perm[], final KEY_TYPE[] a, final int from, final int to, final boolean stable) {
-		if (to - from < PARALLEL_RADIXSORT_NO_FORK) {
+		if (to - from < PARALLEL_RADIXSORT_NO_FORK || ForkJoinPool.getCommonPoolParallelism() == 1) {
 			radixSortIndirect(perm, a, from, to, stable);
 			return;
 		}
@@ -2232,8 +2227,8 @@ public final class ARRAYS {
 		final LinkedBlockingQueue<Segment> queue = new LinkedBlockingQueue<>();
 		queue.add(new Segment(from, to - from, 0));
 		final AtomicInteger queueSize = new AtomicInteger(1);
-		final int numberOfThreads = Runtime.getRuntime().availableProcessors();
-		final ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads, Executors.defaultThreadFactory());
+		final int numberOfThreads = ForkJoinPool.getCommonPoolParallelism();
+		final ExecutorService executorService = ForkJoinPool.commonPool();
 		final ExecutorCompletionService<Void> executorCompletionService = new ExecutorCompletionService<>(executorService);
 		final int[] support = stable ? new int[perm.length] : null;
 
@@ -2334,7 +2329,7 @@ public final class ARRAYS {
 	 * be exactly the numbers in the interval {@code [0..perm.length)}) will be permuted so that
 	 * {@code a[perm[i]] &le; a[perm[i + 1]]}.
 	 *
-	 * <p>This implementation uses a pool of {@link Runtime#availableProcessors()} threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param perm a permutation array indexing {@code a}.
 	 * @param a the array to be sorted.
@@ -2464,7 +2459,7 @@ public final class ARRAYS {
 	 * in the same position in the two provided arrays will be considered a single key, and permuted
 	 * accordingly. In the end, either {@code a[i] &lt; a[i + 1]} or {@code a[i] == a[i + 1]} and {@code b[i] &le; b[i + 1]}.
 	 *
-	 * <p>This implementation uses a pool of {@link Runtime#availableProcessors()} threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param a the first array to be sorted.
 	 * @param b the second array to be sorted.
@@ -2472,7 +2467,7 @@ public final class ARRAYS {
 	 * @param to the index of the last element (exclusive) to be sorted.
 	 */
 	public static void parallelRadixSort(final KEY_TYPE[] a, final KEY_TYPE[] b, final int from, final int to) {
-		if (to - from < PARALLEL_RADIXSORT_NO_FORK) {
+		if (to - from < PARALLEL_RADIXSORT_NO_FORK || ForkJoinPool.getCommonPoolParallelism() == 1) {
 			quickSort(a, b, from, to);
 			return;
 		}
@@ -2482,8 +2477,8 @@ public final class ARRAYS {
 		final LinkedBlockingQueue<Segment> queue = new LinkedBlockingQueue<>();
 		queue.add(new Segment(from, to - from, 0));
 		final AtomicInteger queueSize = new AtomicInteger(1);
-		final int numberOfThreads = Runtime.getRuntime().availableProcessors();
-		final ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads, Executors.defaultThreadFactory());
+		final int numberOfThreads = ForkJoinPool.getCommonPoolParallelism();
+		final ExecutorService executorService = ForkJoinPool.commonPool();
 		final ExecutorCompletionService<Void> executorCompletionService = new ExecutorCompletionService<>(executorService);
 		for (int j = numberOfThreads; j-- != 0;) executorCompletionService.submit(() -> {
 				final int[] count = new int[1 << DIGIT_BITS];
@@ -2559,7 +2554,7 @@ public final class ARRAYS {
 	 * in the same position in the two provided arrays will be considered a single key, and permuted
 	 * accordingly. In the end, either {@code a[i] &lt; a[i + 1]} or {@code a[i] == a[i + 1]} and {@code b[i] &le; b[i + 1]}.
 	 *
-	 * <p>This implementation uses a pool of {@link Runtime#availableProcessors()} threads.
+	 * <p>This implementation uses the {@link ForkJoinPool#commonPool() common pool}.
 	 *
 	 * @param a the first array to be sorted.
 	 * @param b the second array to be sorted.
